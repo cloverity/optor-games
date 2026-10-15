@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optor Games Bot — demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#13202B; --muted:#4A5966; --line:#C5CFD8; --bg:#F3F5F7;
+  --chat:#E3E9EE; --bubble:#FFFFFF; --me:#DCEBD5;
+  --key:#C9D6E1; --key-h:#B7C8D6; --accent:#245E8F; --accent-h:#1B4C75; --danger:#9E2B25; --danger-h:#83221D;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+button{font:inherit}
+.page{display:flex;flex-wrap:wrap;gap:32px;justify-content:center;padding:24px 16px}
+.controls{width:320px;max-width:100%;display:flex;flex-direction:column;gap:18px}
+.controls h1{font-size:20px;margin:0}
+.group{display:flex;flex-direction:column;gap:6px}
+.cap{font-size:13px;font-weight:600;color:var(--muted)}
+.seg{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));gap:4px;background:#DCE2E8;padding:4px;border-radius:10px}
+.seg button{min-height:40px;border:0;border-radius:8px;background:transparent;color:#3A4955;font-weight:600;cursor:pointer}
+.seg button.on{background:#FFFFFF;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.hint{font-size:13px;color:var(--muted);line-height:1.5}
+.hint b{color:var(--ink)}
+.reset{min-height:40px;border:1px solid var(--line);border-radius:8px;background:#FFFFFF;cursor:pointer}
+.pricing-link{display:flex;align-items:center;justify-content:center;text-decoration:none;color:#FFFFFF;background:var(--accent);border-color:var(--accent);font-weight:600}
+.pricing-link:hover{background:var(--accent-h)}
+
+.phone{width:390px;max-width:100%;height:844px;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;background:var(--chat);border:1px solid var(--line);position:relative}
+.head{height:60px;flex-shrink:0;background:#FFFFFF;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid #D5DCE2}
+.ava{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px}
+.chat{flex:1;overflow-y:auto;position:relative;padding:12px 8px;display:flex;flex-direction:column;gap:8px}
+.chat > :first-child{margin-top:auto}
+.chat > *{flex-shrink:0}
+.m{display:flex;flex-direction:column;gap:6px}
+.msg{width:100%;background:var(--bubble);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.45;box-shadow:0 1px 1px rgba(0,0,0,.08);white-space:pre-line}
+.msg.flush{padding:0;overflow:hidden;white-space:normal}
+.msg .body{padding:10px 12px}
+.me{align-self:flex-end;background:var(--me);border-radius:14px 14px 4px 14px;padding:8px 12px;font-size:14px;max-width:85%;word-break:break-word;white-space:pre-line}
+.sys{align-self:center;background:rgba(28,39,49,.55);color:#FFFFFF;font-size:12px;border-radius:10px;padding:3px 10px}
+.kb{display:flex;flex-direction:column;gap:6px;width:100%}
+.row{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));gap:6px}
+.ik{min-height:44px;border:0;border-radius:10px;background:var(--key);color:var(--ink);font-weight:500;font-size:14px;padding:0 10px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ik:hover{background:var(--key-h)}
+.ik.primary{background:var(--accent);color:#FFFFFF}
+.ik.primary:hover{background:var(--accent-h)}
+.ik.danger{background:var(--danger);color:#FFFFFF}
+.ik.danger:hover{background:var(--danger-h)}
+.ik.noop{cursor:default;background:var(--key)}
+.title{font-weight:600;font-size:16px}
+.lbl{color:var(--muted)}
+.pkg{color:var(--accent)}
+.wizard{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;white-space:normal}
+.wizard li{display:flex;gap:8px;align-items:flex-start}
+.w-mark{flex-shrink:0;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:#E3E9EE;color:var(--muted)}
+.w-done{color:var(--muted)}
+.w-done .w-mark{background:#DCEBD5;color:#2C5E2A}
+.w-now{background:#EEF4FA;border-radius:8px;padding:6px;margin:0 -6px}
+.w-now .w-mark{background:var(--accent);color:#FFFFFF}
+.w-next{color:var(--muted)}
+.w-status{margin-top:8px;font-weight:600;color:#2C5E2A}
+.cmd{color:var(--accent);cursor:pointer;text-decoration:none}
+.cmd:hover{text-decoration:underline}
+.desc{white-space:pre-line;margin-top:6px}
+.composer{flex-shrink:0;background:#FFFFFF;border-top:1px solid #D5DCE2;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.demo-note{font-size:12px;color:#7A4B00;background:#FFF4DC;border-radius:8px;padding:6px 10px}
+.composer .line{display:flex;gap:8px;align-items:center}
+.composer input{flex:1;min-height:40px;border:1px solid var(--line);border-radius:20px;padding:0 14px;font:14px 'IBM Plex Sans',system-ui,sans-serif;background:#F7F9FA;color:var(--ink)}
+.send{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send:disabled,.composer input:disabled{opacity:.5;cursor:default}
+.reply{flex-shrink:0;background:#F1F4F6;padding:8px 10px 14px;display:grid;gap:6px}
+.rk{min-height:44px;border:1px solid var(--line);border-radius:10px;background:#FFFFFF;color:var(--ink);font-weight:500;font-size:14px;cursor:pointer}
+.rk:hover{background:#EEF2F5}
+.toast{position:absolute;left:16px;right:16px;bottom:170px;background:#1C2731;color:#FFFFFF;font-size:13px;padding:10px 14px;border-radius:10px;text-align:center;z-index:9}
+
+.cover{position:relative;overflow:hidden;width:100%;color:#FFFFFF}
+.cover .deco{position:absolute;inset:0;width:100%;height:100%}
+.cover-t{position:absolute;left:14px;right:14px;bottom:12px;display:flex;flex-direction:column;gap:2px;text-align:left;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.cover-n{font-weight:600;font-size:20px;line-height:1.15}
+.cover-g{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+
+/* Mini App */
+.webapp{position:absolute;inset:0;background:#FFFFFF;display:flex;flex-direction:column;z-index:5}
+.wa-head{height:56px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 8px;border-bottom:1px solid #E1E6EB}
+.wa-head .t{flex:1;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon{width:44px;height:44px;border:0;background:transparent;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0}
+.icon:hover{background:#EEF2F5}
+.wa-body{flex:1;min-height:0;overflow-y:auto;padding:14px}
+.wa-actions{flex-shrink:0;padding:10px 14px 16px;border-top:1px solid #E1E6EB;display:flex;flex-direction:column;gap:8px}
+.wa-h1{text-align:center;font-size:20px;font-weight:600;margin:2px 0 14px}
+.stats{font-size:14px;color:var(--muted);margin-bottom:12px;text-align:center}
+.feed{display:flex;flex-direction:column;gap:14px}
+.tapcard{border:0;padding:0;background:none;cursor:pointer;display:block;width:100%;border-radius:14px;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{border:0;padding:0;background:transparent;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;color:var(--ink)}
+.tile .n{font-weight:600;font-size:14px}
+.tile .g{font-size:12px;color:var(--muted)}
+.tile .cover-n{font-size:15px}
+.detail{flex:1;min-height:0;display:flex;flex-direction:column}
+.detail .info{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 14px 0}
+.detail .d{flex:0 1 auto;min-height:0;overflow:hidden;white-space:pre-line;margin-top:8px}
+.detail .d.clamped{-webkit-mask-image:linear-gradient(#000 65%,transparent);mask-image:linear-gradient(#000 65%,transparent)}
+.detail .d.open{overflow-y:auto}
+.more{align-self:flex-start;border:0;background:none;color:var(--accent);font-weight:500;padding:6px 0;cursor:pointer;flex-shrink:0}
+.pos{display:flex;align-items:center;justify-content:center;font-weight:500;color:#3A4955}
+.confirm{font-size:14px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label,.flabel{font-size:13px;font-weight:600;color:var(--muted)}
+.field input,.field textarea{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:14px 'IBM Plex Sans',system-ui,sans-serif;color:var(--ink);background:#F7F9FA;resize:vertical}
+.field input{min-height:44px}
+.photo-row{display:flex;gap:12px;align-items:center}
+.thumbs{display:flex;gap:8px;align-items:center}
+.thumbs .ik{flex:1}
+.thumbs .cover-t{display:none}
+.search{position:relative;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:0 12px;background:#F7F9FA;color:var(--muted);margin-bottom:10px}
+.search input{flex:1;min-height:44px;border:0;background:transparent;font:15px 'IBM Plex Sans',system-ui,sans-serif;color:var(--ink);outline:none}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.chip{flex-shrink:0;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#FFFFFF;color:var(--ink);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.gallery{position:relative;flex-shrink:0;width:100%}
+.gal-track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.gal-track::-webkit-scrollbar{display:none}
+.gal-track .slide{flex:0 0 100%;scroll-snap-align:start}
+.dots{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5)}
+.dots i.on{background:#FFFFFF}
+.photo-row .ik{flex:1}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="controls">
+    <h1>Optor Games bot — demo</h1>
+    <div class="group">
+      <div class="cap">Version</div>
+      <div class="seg" id="verSeg"></div>
+      <div class="hint" id="verHint"></div>
+    </div>
+    <div class="group">
+      <div class="cap">View as</div>
+      <div class="seg" id="roleSeg"></div>
+      <div class="hint">Admins: @Nik_Unic, @maksym1186, @C1overity. The bot recognises them by Telegram ID and shows them a different bottom menu.</div>
+    </div>
+    <div class="hint">7 sample games, texts marked [DEMO TEXT]. Changes made as Admin (add, edit, delete) reach the Subscriber view, including notifications.</div>
+    <button class="reset" data-action="reset">Reset demo</button>
+    <a class="reset pricing-link" href="pricing.html">Versions &amp; prices →</a>
+  </div>
+
+  <div class="phone">
+    <div class="head">
+      <div class="ava">OG</div>
+      <div><div style="font-weight:600;font-size:16px">Optor Games</div><div style="font-size:12px;color:var(--muted)">bot</div></div>
+    </div>
+    <div class="chat" id="chat"></div>
+    <div class="composer">
+      <div class="demo-note" id="demoNote" hidden>Demo only: the answer is pre-filled to save typing. In Telegram the admin types it.</div>
+      <div class="line">
+        <label for="composer" style="position:absolute;left:-9999px">Message</label>
+        <input id="composer" placeholder="Message">
+        <button class="send" id="sendBtn" data-action="send" aria-label="Send">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12l16-8-6 16-3-7-7-1z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="reply" id="reply"></div>
+    <div id="app"></div>
+    <div id="toast"></div>
+  </div>
+</div>
+
+<script>
+const BACK_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>';
+const CLOSE_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+const VERSIONS = {
+  simple: { label: 'Simple bot', hint: '<b>Simple bot</b> — the minimum: games as a list of buttons, a game card with Play / Game page / Back. Admin picks a game from a button list to edit or delete it; adding is a step-by-step dialog.' },
+  bot: { label: 'Bot', hint: '<b>Bot</b> — everything happens inside the Telegram chat: messages, photos and buttons under them. Auto-replace: every button edits the one message on screen instead of sending a new one; your taps and commands disappear, so the chat stays clean.' },
+  app: { label: 'Mini App', hint: '<b>Mini App</b> — the catalogue and the admin panel open as a full-screen web page inside Telegram: grid of covers, full-height game card with buttons pinned to the bottom, forms for editing. Separate web front end.' }
+};
+
+// Telegram shows a long description collapsed: first paragraph + "Read more" (decided by length, not by screen size).
+const LONG = 300;
+
+const STEPS = [
+  { key: 'name', label: 'Title', need: 'as players will see it, e.g. Dota Arena', sample: 'Dota Arena' },
+  { key: 'genre', label: 'Genre', need: 'one or two words, e.g. MOBA', sample: 'MOBA' },
+  { key: 'package', label: 'Package name', need: 'Android package id, e.g. com.optor.game', sample: 'com.optor.dotaarena' },
+  { key: 'description', label: 'Description', need: 'up to 600 characters; the first paragraph is the short teaser', sample: 'Five-on-five arena battles with quick 10-minute matches.\n\nPick one of 20 heroes, push lanes, take towers. Ranked seasons, clan wars and weekly events keep the meta fresh. [DEMO TEXT]' },
+  { key: 'photo', label: 'Cover image', need: 'a horizontal screenshot or key art, sent as a photo', photo: true },
+  { key: 'playLink', label: 'Play link', need: 'link to the test build (Google Play testing, TestFlight)', sample: 'https://play.google.com/apps/testing/com.optor.dotaarena' },
+  { key: 'gameLink', label: 'Game page link', need: 'store page or website', sample: 'https://optor.games/dota-arena' }
+];
+const FIELDS = [
+  { key: 'name', label: 'Title' }, { key: 'genre', label: 'Genre' }, { key: 'package', label: 'Package' },
+  { key: 'description', label: 'Description' }, { key: 'photo', label: 'Photo' },
+  { key: 'playLink', label: 'Play link' }, { key: 'gameLink', label: 'Game page link' }
+];
+
+function demoGames() {
+  const g = (id, name, genre, pkg, description, slug) => ({ id, name, genre, package: pkg, description,
+    playLink: 'https://play.google.com/apps/testing/' + pkg, gameLink: 'https://optor.games/' + slug });
+  return [
+    g(101, 'Counter-Strike', 'Shooter', 'com.optor.counterstrike', 'Team-based tactical shooter for mobile: two teams of five, fast two-minute rounds.\n\nControls are rebuilt for touch screens: aim assist, customizable HUD, one-tap weapon switch. Ranked matchmaking, weekly tournaments and seasonal skins keep players coming back.\n\nBuilt in Unity, runs at 60 FPS on mid-range Android devices. [DEMO TEXT]', 'counter-strike'),
+    g(102, 'Half-Life', 'Action / Story', 'com.optor.halflife', 'Story-driven action game in a sealed research facility after an experiment goes wrong.\n\nTen chapters mix combat with physics puzzles: build bridges from crates, redirect power, throw objects with the gravity tool. No loading screens between chapters.\n\nAbout 6 hours of gameplay, cloud saves, controller support. [DEMO TEXT]', 'half-life'),
+    g(103, 'Portal', 'Puzzle', 'com.optor.portal', 'First-person puzzle game built around one tool: two linked portals on any flat surface.\n\n40 test chambers grow from simple tricks to puzzles with momentum, lasers and moving platforms. A dry, funny narrator comments on every success and failure.\n\nShort levels of 2–5 minutes, made for playing on the go. [DEMO TEXT]', 'portal'),
+    g(104, 'Hollow Knight', 'Metroidvania', 'com.optor.hollowknight', 'Hand-drawn action adventure through a vast ruined kingdom of insects.\n\nExplore interconnected caverns, fight 30+ bosses, unlock new abilities that open old paths. Tight controls tuned for touch and gamepad.\n\nAround 30 hours of content, offline play. [DEMO TEXT]', 'hollow-knight'),
+    g(105, 'Stardew Valley', 'Farming sim', 'com.optor.stardew', 'Relaxed farming game: inherit an old farm and turn it into a thriving homestead.\n\nGrow crops, raise animals, fish, mine and make friends in a small town. Seasons change every 28 in-game days, each with its own festivals.\n\nShort daily sessions, auto-save, no ads. [DEMO TEXT]', 'stardew-valley'),
+    g(106, 'Clash Royale', 'Strategy', 'com.optor.clashroyale', 'Real-time 1v1 card battles that last three minutes.\n\nBuild a deck of eight cards, deploy troops and spells, take down the opponent\'s towers. Climb arenas, join clans, trade cards with friends.\n\nDesigned for one-hand play in portrait mode. [DEMO TEXT]', 'clash-royale'),
+    g(107, 'Subway Surfers', 'Endless runner', 'com.optor.subwaysurfers', 'Endless runner through city rail yards: dodge trains, jump barriers, collect coins.\n\nSwipe to switch lanes, roll and jump. Daily challenges, a new city every season, and boards and characters to unlock.\n\nOne-minute runs, great for short breaks. [DEMO TEXT]', 'subway-surfers')
+  ];
+}
+
+let S, seq = 0;
+function fresh() {
+  S = { ver: 'simple', role: 'user', asAdmin: false, notify: true, subscribers: 128, games: demoGames(),
+        ulog: [], alog: [], scr: {}, app: null, cmp: null, toast: null };
+}
+fresh();
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const game = id => S.games.find(g => g.id === Number(id));
+const teaser = g => String(g.description || '').split('\n\n')[0];
+const log = () => S.role === 'user' ? S.ulog : S.alog;
+const findMsg = id => log().find(m => m.id === Number(id));
+// Bot version = auto-replace: one "screen" per chat that every button edits (editMessageText / editMessageMedia);
+// the user's own messages (menu taps, commands, admin answers) are deleted by the bot (deleteMessage).
+// A screen can be a group of messages (the games feed: one message per game); leaving it deletes the whole group.
+// If something else was posted after the screen (e.g. a notification), the screen is re-sent at the bottom.
+const screenMode = () => S.ver === 'bot';
+function screen(group) {
+  const L = log(), ids = S.scr[S.role] || [];
+  const exits = ['rkPanel', 'aCancel', 'aDelNo', 'aList'];
+  group = group.map(m => {
+    if (S.role === 'admin' && m.kind === 'text' && !m.head && !(m.kb || []).flat().some(b => exits.includes(b.a))) return { ...m, kb: [...(m.kb || []), [B('‹ Admin panel', 'rkPanel')]] };
+    if (S.role === 'user' && m.kind === 'text' && !m.head && !(m.kb && m.kb.length)) return { ...m, kb: [[B('‹ Main menu', 'rkMain')]] };
+    return m;
+  });
+  const idx = ids.length === 1 ? L.findIndex(x => x.id === ids[0]) : -1;
+  if (group.length === 1 && idx >= 0 && idx === L.length - 1) { L[idx] = { id: ids[0], ...group[0] }; return; }
+  for (let i = L.length - 1; i >= 0; i--) if (ids.includes(L[i].id)) L.splice(i, 1);
+  S.scr[S.role] = group.map(m => { L.push({ id: ++seq, ...m }); return seq; });
+}
+function push(...ms) {
+  if (!screenMode()) { ms.forEach(m => log().push({ id: ++seq, ...m })); return; }
+  ms.filter(m => m.kind === 'sys').forEach(m => log().push({ id: ++seq, ...m }));
+  const group = ms.filter(m => m.kind !== 'sys' && m.kind !== 'me');
+  if (group.length) screen(group);
+}
+const B = (t, a, arg, cls) => ({ t, a, arg, cls });
+
+let toastTimer;
+function flash(t) { clearTimeout(toastTimer); S.toast = t; render(); toastTimer = setTimeout(() => { S.toast = null; render(); }, 2400); }
+
+const PALETTE = [['#1E3A5F', '#3E7CB1'], ['#4A1D3F', '#A0446F'], ['#1F4D3A', '#3F9468'], ['#4D2E12', '#B8722C'], ['#2B2459', '#6458B8'], ['#3D3D3D', '#7A7A7A'], ['#5C1A1A', '#B5443A']];
+function cover(g, style) {
+  const [a, b] = PALETTE[(Number(g.id) || 0) % PALETTE.length];
+  return `<div class="cover" style="${style};background:linear-gradient(135deg, ${a}, ${b})">
+    <svg class="deco" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <circle cx="165" cy="35" r="70" fill="rgba(255,255,255,.10)"/><circle cx="30" cy="190" r="55" fill="rgba(255,255,255,.07)"/>
+      <path d="M0 140 L60 95 L105 125 L160 70 L200 100 L200 200 L0 200 Z" fill="rgba(0,0,0,.18)"/></svg>
+    <div class="cover-t"><span class="cover-g">${esc(g.genre || '')}</span><span class="cover-n">${esc(g.name || 'New game')}</span></div></div>`;
+}
+
+/* ---------- chat messages ---------- */
+function kbHtml(rows, mid) {
+  if (!rows || !rows.length) return '';
+  return `<div class="kb">${rows.map(r => `<div class="row" style="--n:${r.length}">${r.map(b =>
+    `<button class="ik ${b.cls || ''}" data-action="${b.a}" data-m="${mid}"${b.arg !== undefined ? ` data-arg="${esc(b.arg)}"` : ''}>${esc(b.t)}</button>`).join('')}</div>`).join('')}</div>`;
+}
+
+function cardRows(m, g) {
+  const rows = [];
+  if (m.simple) return [[B('Play', 'play', g.id, 'primary'), B('Game page', 'page', g.id)], [B('‹ Back to games', 'sList')]];
+  if (String(g.description).length > LONG) rows.push([B(m.exp ? 'Show less' : 'Read more', 'more')]);
+  if (m.admin) {
+    rows.push([B('Delete', 'aDel', g.id, 'danger'), B('Edit', 'aEdit', g.id, 'primary')]);
+    rows.push([B('‹ Back to games', 'aList')]);
+  } else {
+    const i = S.games.indexOf(g);
+    rows.push([B('Play', 'play', g.id, 'primary'), B('Game page', 'page', g.id)]);
+    rows.push([B('‹ Prev', 'prev'), B(`${i + 1} / ${S.games.length}`, 'noop', undefined, 'noop'), B('Next ›', 'next')]);
+  }
+  return rows;
+}
+
+function msgHtml(m) {
+  let h = '';
+  if (m.kind === 'sys') h = `<div class="sys">${esc(m.text)}</div>`;
+  else if (m.kind === 'me') h = `<div class="me">${esc(m.text)}</div>`;
+  else if (m.kind === 'text') h = `<div class="msg">${m.html}</div>${kbHtml(m.kb, m.id)}`;
+  else if (m.kind === 'feed') {
+    const g = game(m.gid);
+    h = g ? `<div class="msg flush">${cover(g, `height:${m.small ? 120 : 220}px`)}</div>${kbHtml([[B('Details', m.small ? 'aDetails' : 'details', g.id)]], m.id)}`
+          : `<div class="msg lbl">This game was removed.</div>`;
+  } else if (m.kind === 'card') {
+    const g = game(m.gid);
+    if (!g) h = `<div class="msg lbl">This game was removed.</div>`;
+    else {
+      const long = !m.simple && String(g.description).length > LONG;
+      const text = long && !m.exp ? teaser(g) : g.description;
+      h = `<div class="msg flush">${cover(g, 'height:200px')}<div class="body">
+        <div class="title">${esc(g.name)}</div>
+        <div><span class="lbl">Genre:</span> ${esc(g.genre)}</div>
+        <div><span class="lbl">Package:</span> <span class="pkg">${esc(g.package)}</span></div>
+        <div class="desc">${esc(text)}</div></div></div>${kbHtml(m.kb || cardRows(m, g), m.id)}`;
+    }
+  }
+  return `<div class="m${m.head ? ' list-start' : ''}" data-k="${m.id}">${h}</div>`;
+}
+
+function chatHtml() {
+  if (S.role === 'user' && !S.ulog.length) startUser();
+  if (S.role === 'admin' && !S.alog.length) startAdmin();
+  return log().map(msgHtml).join('');
+}
+
+/* ---------- bot flows ---------- */
+function welcome() {
+  const btn = S.ver === 'app' ? B('Open catalogue', 'openCatalogue', undefined, 'primary') : B('Browse games', 'browse', undefined, 'primary');
+  return { kind: 'text', html: `<b>Welcome to Optor Games</b>\nWe build mobile games in Unity. Browse our portfolio and test any game on your device.\n<span class="lbl" style="font-size:12px">We'll message you when a new game comes out. ${S.ver === 'simple' ? 'Send /notifications to turn this off.' : 'You can turn this off with the Notifications button below.'}</span>`, kb: [[btn]] };
+}
+function startUser() { S.ulog.push({ id: ++seq, kind: 'sys', text: '/start' }, { id: ++seq, ...welcome() }); S.scr.user = [seq]; }
+function startAdmin() {
+  S.alog.push({ id: ++seq, kind: 'sys', text: '/admin' });
+  if (S.ver === 'app') S.alog.push({ id: ++seq, kind: 'text', html: 'The admin panel opens as a mini app.', kb: [[B('Open admin panel', 'openAdmin', undefined, 'primary')]] });
+  else if (S.ver === 'simple') S.alog.push({ id: ++seq, ...simpleAdminMenu() });
+  else adminList(true);
+}
+function simpleList() {
+  push({ kind: 'text', html: '<b>Our games</b>\nChoose a game:', head: true, kb: S.games.map(g => [B(`[${g.id}] ${g.name}`, 'details', g.id)]) });
+}
+function feed() {
+  if (S.ver === 'simple') return simpleList();
+  push({ kind: 'text', html: '<b>Our games</b>', head: true }, ...S.games.map(g => ({ kind: 'feed', gid: g.id })));
+}
+function simpleAdminMenu() {
+  return { kind: 'text', html: `<b>Admin panel</b>\nGames: ${S.games.length} · Subscribers: ${S.subscribers}`,
+    kb: [[B('Add game', 'sAdd', undefined, 'primary')], [B('Edit game', 'sPick', 'aEdit'), B('Delete game', 'sPick', 'aDel')]] };
+}
+function adminList(direct) {
+  const group = [{ kind: 'text', html: `<b>Admin panel</b>\nGames: ${S.games.length} · Subscribers: ${S.subscribers}`, head: true },
+    ...S.games.map(g => ({ kind: 'feed', gid: g.id, small: true }))];
+  if (direct) S.scr.admin = group.map(m => { S.alog.push({ id: ++seq, ...m }); return seq; });
+  else push(...group);
+}
+function notifyUsers(title, text, gid) {
+  if (!S.notify) return;
+  S.ulog.push({ id: ++seq, kind: 'text', html: `<b>${esc(title)}</b>\n${esc(text)}`, kb: [[B('Open game', 'openNotice', gid, 'primary')]] });
+}
+
+/* ---------- Mini App ---------- */
+function appHtml() {
+  const A = S.app;
+  if (!A) return '';
+  const head = (left, title) => `<div class="wa-head">${left}<div class="t">${esc(title)}</div>
+    <button class="icon" data-action="appClose" aria-label="Close">${CLOSE_ICON}</button></div>`;
+  const back = to => `<button class="icon" data-action="appGo" data-arg="${to}" aria-label="Back">${BACK_ICON}</button>`;
+  const none = '<div style="width:44px"></div>';
+
+  if (A.view === 'feed') {
+    const genres = [...new Set(S.games.map(g => g.genre))];
+    const chip = (label, val) => `<button class="chip${(A.genre || '') === val ? ' on' : ''}" data-action="appGenre" data-arg="${esc(val)}">${esc(label)}</button>`;
+    return `<div class="webapp">${head(none, 'Optor Games')}<div class="wa-body"><div class="wa-h1">Our games</div>
+      <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <span style="position:absolute;left:-9999px">Search games</span><input id="appSearch" data-appsearch placeholder="Search games" value="${esc(A.q || '')}"></label>
+      <div class="chips">${chip('All', '')}${genres.map(g => chip(g, g)).join('')}</div>
+      <div class="feed" id="appFeedList">${feedItems()}</div></div></div>`;
+  }
+  if (A.view === 'detail') {
+    const g = game(A.gid); const i = S.games.indexOf(g);
+    return `<div class="webapp">${head(back('feed'), g.name)}<div class="detail">
+      ${gallery(g, 200)}
+      <div class="info"><div class="title" style="font-size:20px">${esc(g.name)}</div>
+        <div><span class="lbl">Genre:</span> ${esc(g.genre)}</div>
+        <div><span class="lbl">Package:</span> <span class="pkg">${esc(g.package)}</span></div>
+        <div class="d${A.exp ? ' open' : ''}" id="appDesc">${esc(g.description)}</div>
+        <button class="more" id="appMore" data-action="appMore" hidden>${A.exp ? 'Show less' : 'Read more'}</button></div></div>
+      <div class="wa-actions"><div class="row">${btnA('Play', 'play', g.id, 'primary')}${btnA('Game page', 'page', g.id)}</div>
+        <div class="row" style="--n:3">${btnA('‹ Prev', 'appPrev')}<div class="pos">${i + 1} / ${S.games.length}</div>${btnA('Next ›', 'appNext')}</div></div></div>`;
+  }
+  if (A.view === 'grid') {
+    return `<div class="webapp">${head(none, 'Admin panel')}<div class="wa-body">
+      <div class="stats">Games: ${S.games.length} · Subscribers: ${S.subscribers}</div><div class="grid">
+      ${S.games.map(g => `<button class="tile" data-action="appAdmOpen" data-arg="${g.id}">${cover(g, 'aspect-ratio:3/4;border-radius:12px')}
+        <span class="n">[${g.id}] ${esc(g.name)}</span><span class="g">${esc(g.genre)}</span></button>`).join('')}</div></div>
+      <div class="wa-actions">${btnA('Add game', 'appAdd', undefined, 'primary')}</div></div>`;
+  }
+  if (A.view === 'adetail') {
+    const g = game(A.gid);
+    const actions = A.confirm
+      ? `<div class="confirm">Delete [${g.id}] ${esc(g.name)}? It disappears from the catalogue for everyone.</div>
+         <div class="row">${btnA('Delete', 'appDelYes', undefined, 'danger')}${btnA('Cancel', 'appDelNo')}</div>`
+      : `<div class="row">${btnA('Delete', 'appDelAsk', undefined, 'danger')}${btnA('Edit', 'appEdit', undefined, 'primary')}</div>`;
+    return `<div class="webapp">${head(back('grid'), g.name)}<div class="detail">
+      ${gallery(g, 200)}
+      <div class="info" style="overflow-y:auto"><div class="title" style="font-size:20px">[${g.id}] ${esc(g.name)}</div>
+        <div><span class="lbl">Genre:</span> ${esc(g.genre)}</div>
+        <div><span class="lbl">Package:</span> <span class="pkg">${esc(g.package)}</span></div>
+        <div style="white-space:pre-line;margin-top:8px">${esc(g.description)}</div>
+        <div style="margin:10px 0 14px;font-size:13px;word-break:break-all"><div><span class="lbl">Play:</span> <span class="pkg">${esc(g.playLink)}</span></div>
+        <div><span class="lbl">Game page:</span> <span class="pkg">${esc(g.gameLink)}</span></div></div></div></div>
+      <div class="wa-actions">${actions}</div></div>`;
+  }
+  // add / edit form
+  const f = A.form; const isAdd = A.view === 'add';
+  const inputs = STEPS.filter(s => !s.photo).map(s => `<div class="field"><label for="f-${s.key}">${esc(s.label)}</label>
+    ${s.key === 'description' ? `<textarea id="f-${s.key}" data-field="${s.key}" rows="7">${esc(f[s.key])}</textarea>`
+                             : `<input id="f-${s.key}" data-field="${s.key}" value="${esc(f[s.key])}">`}</div>`).join('');
+  return `<div class="webapp">${head(back(isAdd ? 'grid' : 'adetail'), isAdd ? 'New game' : 'Edit game')}<div class="wa-body">
+    ${isAdd ? '<div class="demo-note" style="margin-bottom:12px">Demo only: fields are pre-filled to save typing.</div>' : ''}
+    <div class="field"><span class="flabel">Cover image</span><div class="photo-row">${cover({ ...f, id: A.gid || 0 }, 'width:96px;height:128px;border-radius:10px;flex-shrink:0')}
+    ${btnA(f.photo ? 'Change photo (demo)' : 'Upload photo (demo)', 'appPhoto')}</div></div>
+    <div class="field"><span class="flabel">Screenshots (up to 5)</span><div class="thumbs">${[1, 2].map(i => shot({ ...f, id: A.gid || 0 }, i, 'width:72px;height:96px;border-radius:8px;flex-shrink:0')).join('')}
+      ${btnA('Add screenshot (demo)', 'appShot')}</div></div>${inputs}</div>
+    <div class="wa-actions">${btnA(isAdd ? `Publish and notify ${S.subscribers} subscribers` : 'Save', 'appSave', undefined, 'primary')}</div></div>`;
+}
+function filteredGames() {
+  const A = S.app || {}, q = String(A.q || '').trim().toLowerCase();
+  return S.games.filter(g => (!A.genre || g.genre === A.genre) && (!q || (g.name + ' ' + g.genre).toLowerCase().includes(q)));
+}
+function feedItems() {
+  const list = filteredGames();
+  if (!list.length) return '<div class="lbl" style="text-align:center;padding:24px 0">No games found.</div>';
+  return list.map(g => `<button class="tapcard" data-action="appOpen" data-arg="${g.id}" aria-label="Open ${esc(g.name)}">${cover(g, 'height:220px')}</button>`).join('');
+}
+// Mini App gallery: several screenshots per game, swiped horizontally (scroll-snap), dots follow the swipe.
+const SHOTS = 3;
+function gallery(g, h) {
+  const slides = [...Array(SHOTS).keys()].map(i => `<div class="slide">${shot(g, i, `height:${h}px`)}</div>`).join('');
+  const dots = [...Array(SHOTS).keys()].map(i => `<i class="${i ? '' : 'on'}"></i>`).join('');
+  return `<div class="gallery" style="height:${h}px"><div class="gal-track" data-gallery>${slides}</div><div class="dots">${dots}</div></div>`;
+}
+function shot(g, i, style) {
+  if (i === 0) return cover(g, style);
+  const [a, b] = PALETTE[(Number(g.id) + i * 2) % PALETTE.length];
+  return `<div class="cover" style="${style};background:linear-gradient(${135 + i * 70}deg, ${a}, ${b})">
+    <svg class="deco" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect x="${20 + i * 30}" y="40" width="70" height="70" rx="12" fill="rgba(255,255,255,.12)"/><circle cx="${150 - i * 20}" cy="140" r="40" fill="rgba(0,0,0,.15)"/></svg>
+    <div class="cover-t"><span class="cover-g">Screenshot ${i + 1} / ${SHOTS}</span><span class="cover-n">${esc(g.name || 'New game')}</span></div></div>`;
+}
+function btnA(t, a, arg, cls) { return `<button class="ik ${cls || ''}" data-action="${a}"${arg !== undefined ? ` data-arg="${esc(arg)}"` : ''}>${esc(t)}</button>`; }
+
+function fitApp() {
+  const d = document.getElementById('appDesc'), b = document.getElementById('appMore');
+  if (!d || !b) return;
+  if (S.app.exp) { b.hidden = false; d.classList.remove('clamped'); return; }
+  b.hidden = true;
+  const over = d.scrollHeight > d.clientHeight + 1;
+  b.hidden = !over; d.classList.toggle('clamped', over);
+}
+
+/* ---------- render ---------- */
+function setHTML(el, html) {
+  if (el._html === html) return false;
+  el.innerHTML = html; el._html = html; return true;
+}
+// Chat: keep every unchanged message, replace only from the first difference on (like Telegram appending / editing).
+function morphChat(el, html) {
+  if (el._html === html) return null;
+  const t = document.createElement('template'); t.innerHTML = html;
+  const fresh = [...t.content.children], old = [...el.children];
+  let i = 0;
+  while (i < old.length && i < fresh.length && old[i].outerHTML === fresh[i].outerHTML) i++;
+  const oldCount = old.length;
+  old.slice(i).forEach(n => n.remove());
+  fresh.slice(i).forEach(n => el.appendChild(n));
+  el._html = html;
+  const appended = fresh.length > oldCount;
+  return { appended, first: appended ? el.children[oldCount] : null, editedLast: !appended && i < fresh.length && i === fresh.length - 1 };
+}
+
+let lastCtx = '';
+function render() {
+  document.getElementById('verSeg').style.setProperty('--n', Object.keys(VERSIONS).length);
+  setHTML(document.getElementById('verSeg'), Object.entries(VERSIONS).map(([k, v]) =>
+    `<button class="${S.ver === k ? 'on' : ''}" data-action="ver" data-arg="${k}">${v.label}</button>`).join(''));
+  document.getElementById('verHint').innerHTML = VERSIONS[S.ver].hint;
+  setHTML(document.getElementById('roleSeg'),
+    `<button class="${S.role === 'user' ? 'on' : ''}" data-action="role" data-arg="user">Subscriber</button>
+     <button class="${S.role === 'admin' ? 'on' : ''}" data-action="role" data-arg="admin">Admin</button>`);
+
+  const chat = document.getElementById('chat');
+  const ctx = S.ver + '|' + S.role;
+  const res = morphChat(chat, chatHtml());
+  if (ctx !== lastCtx) {
+    // Opening a chat: show the start of the last list if it doesn't fit, otherwise the bottom.
+    const heads = chat.querySelectorAll('.m.list-start'); const h = heads[heads.length - 1];
+    chat.scrollTop = h && chat.scrollHeight - h.offsetTop > chat.clientHeight ? h.offsetTop - 12 : chat.scrollHeight;
+  }
+  else if (res && res.appended && res.first && !screenMode()) {
+    // New messages: show the start of the batch if it is taller than the screen, otherwise the bottom.
+    const tall = chat.scrollHeight - res.first.offsetTop > chat.clientHeight;
+    chat.scrollTo({ top: tall ? res.first.offsetTop - 12 : chat.scrollHeight, behavior: 'smooth' });
+  }
+  else if (res && screenMode()) {
+    const first = chat.querySelector(`[data-k="${(S.scr[S.role] || [])[0]}"]`);
+    const tall = first && chat.scrollHeight - first.offsetTop > chat.clientHeight;
+    chat.scrollTo({ top: tall ? first.offsetTop - 12 : chat.scrollHeight, behavior: 'smooth' });
+  }
+  else if (res && res.editedLast) chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+  lastCtx = ctx;
+
+  let reply;
+  if (S.role === 'user') {
+    reply = `<div class="row"><button class="rk" data-action="rkContact">Contact us</button><button class="rk" data-action="rkGames">Games</button></div>
+      ${S.ver === 'simple'
+        ? '<div class="row"><button class="rk" data-action="rkFaq">FAQ</button><button class="rk" data-action="rkMain">Main menu</button></div>'
+        : `<div class="row"><button class="rk" data-action="rkNotify">Notifications: ${S.notify ? 'On' : 'Off'}</button><button class="rk" data-action="rkMain">Main menu</button></div>
+           <button class="rk" data-action="rkFaq">FAQ</button>`}
+      ${S.asAdmin && S.ver !== 'simple' ? '<button class="rk" data-action="rkBackAdmin">Admin panel</button>' : ''}`;
+  } else if (S.ver === 'simple') {
+    reply = `<button class="rk" data-action="rkPanel">Admin panel</button>`;
+  } else if (S.ver === 'bot') {
+    reply = `<button class="rk" data-action="rkAdd">Add game</button>
+      <div class="row"><button class="rk" data-action="rkPanel">Admin panel</button><button class="rk" data-action="rkUserView">User view</button></div>`;
+  } else {
+    reply = `<div class="row"><button class="rk" data-action="openAdmin">Admin panel</button><button class="rk" data-action="rkUserView">User view</button></div>`;
+  }
+  setHTML(document.getElementById('reply'), reply);
+  setHTML(document.getElementById('app'), appHtml());
+  fitApp();
+  setHTML(document.getElementById('toast'), S.toast ? `<div class="toast">${esc(S.toast)}</div>` : '');
+
+  const answering = !!(S.cmp && S.role === 'admin' && !S.cmp.photo);
+  const on = answering || S.role === 'user';
+  const input = document.getElementById('composer');
+  input.disabled = !on; document.getElementById('sendBtn').disabled = !on;
+  input.placeholder = answering ? 'Type and press Send' : S.role === 'user' ? 'Message or /command' : 'Message';
+  document.getElementById('demoNote').hidden = !answering;
+  if (!on) input.value = '';
+}
+const prefill = v => { document.getElementById('composer').value = String(v || '').replace(/\s*\n+\s*/g, ' '); };
+
+/* ---------- admin chat flows (Bot) ---------- */
+// Add game is ONE message that the bot edits after every answer (editMessageText);
+// the admin's own answer messages are deleted by the bot (deleteMessage), so the chat stays clean.
+const short = t => t.length > 60 ? t.slice(0, 57) + '…' : t;
+function wizardHtml(m) {
+  const items = STEPS.map((st, i) => {
+    if (i < m.step) return `<li class="w-done"><span class="w-mark">✓</span><span><b>${esc(st.label)}:</b> ${st.photo ? 'photo attached' : esc(short(String(m.ng[st.key]).split('\n')[0]))}</span></li>`;
+    if (i === m.step) return `<li class="w-now"><span class="w-mark">${i + 1}</span><span><b>${esc(st.label)}</b> — ${esc(st.need)}</span></li>`;
+    return `<li class="w-next"><span class="w-mark">${i + 1}</span><span><b>${esc(st.label)}</b> — ${esc(st.need)}</span></li>`;
+  }).join('');
+  return `<b>New game · step ${m.step + 1} of ${STEPS.length}</b>\nSend each item as a message; I'll fill the list in as you go.<ol class="wizard">${items}</ol>`;
+}
+function askStep() {
+  const st = STEPS[S.cmp.step];
+  S.cmp.photo = !!st.photo;
+  const w = findMsg(S.cmp.wid);
+  w.step = S.cmp.step; w.ng = { ...S.cmp.ng };
+  w.kb = st.photo ? [[B('Attach photo (demo)', 'aPhoto', undefined, 'primary')], [B('Cancel', 'aCancel')]] : [[B('Cancel', 'aCancel')]];
+  render();
+  if (!st.photo) prefill(st.sample);
+}
+function startAdd() {
+  push({ kind: 'wizard', step: 0, ng: {} });
+  S.cmp = { mode: 'add', step: 0, ng: {}, wid: screenMode() ? S.scr.admin[0] : seq };
+  askStep();
+}
+function faq() {
+  const notif = S.ver === 'simple'
+    ? 'Send <a class="cmd" data-action="cmd" data-arg="/notifications">/notifications</a> to turn them off or back on.'
+    : 'Use the Notifications button below, or send <a class="cmd" data-action="cmd" data-arg="/notifications">/notifications</a>.';
+  return { kind: 'text', html: `<b>FAQ</b>
+
+<b>What is this bot?</b>
+The portfolio of Optor Games: every game we have built, with a test build you can play. [DEMO TEXT]
+
+<b>How do I try a game?</b>
+Open a game and tap Play: it opens the test build in Google Play or TestFlight.
+
+<b>Notifications</b>
+We message you when a new game comes out. ${notif}
+
+<b>Contact</b>
+Write to @maksym1186 or tap Contact us below.
+
+<b>Commands</b>
+<a class="cmd" data-action="cmd" data-arg="/start">/start</a> — main menu
+<a class="cmd" data-action="cmd" data-arg="/games">/games</a> — all games
+<a class="cmd" data-action="cmd" data-arg="/notifications">/notifications</a> — notifications on / off
+<a class="cmd" data-action="cmd" data-arg="/faq">/faq</a> — this message` };
+}
+function toggleNotify() {
+  S.notify = !S.notify;
+  push({ kind: 'text', html: S.notify ? 'Notifications on. We\'ll tell you about new games.' : 'Notifications off. Send /notifications to turn them back on.' });
+}
+function closeQuestion() { const q = S.cmp && S.cmp.qid && findMsg(S.cmp.qid); if (q) q.kb = []; }
+function stepAnswer(value) {
+  S.cmp.ng[STEPS[S.cmp.step].key] = value;
+  S.cmp.step++;
+  if (S.cmp.step < STEPS.length) return askStep();
+  // Last answer: the same message turns into the preview card (editMessageMedia replaces text with a photo).
+  S.cmp.photo = true; // composer idle until publish / cancel
+  const w = findMsg(S.cmp.wid);
+  Object.assign(w, { kind: 'card', gid: -1, preview: { id: 0, ...S.cmp.ng },
+    kb: [[B(`Publish and notify ${S.subscribers} subscribers`, 'aPublish', undefined, 'primary')], [B('Cancel', 'aCancel')]] });
+  render();
+}
+
+const ACT = {
+  reset: () => { fresh(); lastCtx = ''; document.getElementById('chat')._html = undefined; document.getElementById('chat').innerHTML = ''; render(); },
+  ver: a => { const games = S.games, notify = S.notify; fresh(); S.games = games; S.notify = notify; S.ver = a; document.getElementById('chat')._html = undefined; document.getElementById('chat').innerHTML = ''; render(); },
+  role: a => { S.role = a; S.asAdmin = false; S.app = null; S.cmp = null; render(); },
+
+  // subscriber
+  browse: () => { feed(); render(); },
+  rkGames: () => { if (S.ver === 'app') { S.app = { view: 'feed' }; render(); return; } push({ kind: 'me', text: 'Games' }); feed(); render(); },
+  rkContact: () => { push({ kind: 'me', text: 'Contact us' }, { kind: 'text', html: 'Questions about our games or a partnership? Write to our manager: <span class="pkg">@maksym1186</span>', kb: [[B('Message @maksym1186', 'manager', undefined, 'primary')]] }); render(); },
+  rkNotify: () => { push({ kind: 'me', text: `Notifications: ${S.notify ? 'On' : 'Off'}` }); toggleNotify(); render(); },
+  rkFaq: () => { push({ kind: 'me', text: 'FAQ' }, faq()); render(); },
+  // In Telegram a /command in a bot message is tappable and sends itself; typed commands work the same way.
+  cmd: a => {
+    push({ kind: 'me', text: a });
+    if (a === '/notifications') toggleNotify();
+    else if (a === '/faq' || a === '/help') push(faq());
+    else if (a === '/games') { if (S.ver === 'app') { S.app = { view: 'feed' }; } else feed(); }
+    else if (a === '/start') push(welcome());
+    else push({ kind: 'text', html: 'Unknown command. Send /faq to see what I understand.' });
+    render();
+  },
+  rkMain: () => { push({ kind: 'me', text: 'Main menu' }, welcome()); render(); },
+  rkBackAdmin: () => { S.role = 'admin'; S.asAdmin = false; render(); },
+  details: a => { push({ kind: 'card', gid: Number(a), simple: S.ver === 'simple' }); render(); },
+  sList: () => { simpleList(); render(); },
+  more: (a, m) => { const msg = findMsg(m); msg.exp = !msg.exp; render(); },
+  prev: (a, m) => { const msg = findMsg(m); const i = S.games.indexOf(game(msg.gid)); msg.gid = S.games[(i - 1 + S.games.length) % S.games.length].id; msg.exp = false; render(); },
+  next: (a, m) => { const msg = findMsg(m); const i = S.games.indexOf(game(msg.gid)); msg.gid = S.games[(i + 1) % S.games.length].id; msg.exp = false; render(); },
+  noop: () => {},
+  play: a => flash('Opens ' + game(a).playLink),
+  page: a => flash('Opens ' + game(a).gameLink),
+  manager: () => flash('Opens a chat with @maksym1186'),
+  openNotice: a => { if (!game(a)) return flash('This game was removed.'); if (S.ver === 'app') { S.app = { view: 'detail', gid: Number(a) }; render(); } else { push({ kind: 'card', gid: Number(a), simple: S.ver === 'simple' }); render(); } },
+  openCatalogue: () => { S.app = { view: 'feed' }; render(); },
+
+  // Mini App (subscriber)
+  appClose: () => { S.app = null; render(); },
+  appGo: a => { S.app = { ...S.app, view: a, confirm: false }; render(); },
+  appOpen: a => { S.app = { view: 'detail', gid: Number(a), exp: false }; render(); },
+  appMore: () => { S.app.exp = !S.app.exp; render(); },
+  appPrev: () => { const i = S.games.indexOf(game(S.app.gid)); S.app = { view: 'detail', gid: S.games[(i - 1 + S.games.length) % S.games.length].id, exp: false }; render(); },
+  appNext: () => { const i = S.games.indexOf(game(S.app.gid)); S.app = { view: 'detail', gid: S.games[(i + 1) % S.games.length].id, exp: false }; render(); },
+
+  // admin, Bot version
+  rkPanel: () => { push({ kind: 'me', text: 'Admin panel' }); if (S.ver === 'simple') push(simpleAdminMenu()); else adminList(); render(); },
+  sAdd: () => startAdd(),
+  sPick: a => { push({ kind: 'text', html: a === 'aEdit' ? 'Which game do you want to edit?' : 'Which game do you want to delete?',
+    kb: [...S.games.map(g => [B(`[${g.id}] ${g.name}`, a, g.id)]), [B('Cancel', 'aCancel')]] }); render(); },
+  rkUserView: () => { S.role = 'user'; S.asAdmin = true; S.app = null; S.cmp = null; render(); },
+  rkAdd: () => { push({ kind: 'me', text: 'Add game' }); startAdd(); },
+  aPhoto: () => { if (S.cmp && S.cmp.mode === 'add') stepAnswer(true); else if (S.cmp && S.cmp.mode === 'edit') saveEdit(true, '[photo]'); },
+  aCancel: (a, m) => {
+    const q = findMsg(m);
+    if (S.cmp && S.cmp.wid && q && q.id === S.cmp.wid) { Object.assign(q, { kind: 'text', html: 'New game cancelled.', kb: screenMode() ? [[B('‹ Admin panel', 'rkPanel')]] : [] }); S.cmp = null; return render(); }
+    if (q) q.kb = [];
+    if (!S.cmp) return render();
+    S.cmp = null; push({ kind: 'text', html: 'Cancelled.' }); render();
+  },
+  aPublish: (a, m) => {
+    if (!S.cmp) return;
+    const id = S.games.reduce((x, g) => Math.max(x, g.id), 100) + 1;
+    const g = { id, ...S.cmp.ng }; delete g.photo;
+    S.games.push(g);
+    const w = findMsg(m); w.kb = screenMode() ? [[B('‹ Admin panel', 'rkPanel')]] : []; w.status = `Published as [${id}]. Notification sent to ${S.subscribers} subscribers.`;
+    S.cmp = null;
+    notifyUsers(`New game: ${g.name}`, `${g.genre}. Tap to see details and play it.`, id);
+    render();
+  },
+  aDetails: a => { push({ kind: 'card', gid: Number(a), admin: true }); render(); },
+  aList: () => { adminList(); render(); },
+  aEdit: a => {
+    S.cmp = null;
+    const g = game(a);
+    push({ kind: 'text', html: `Editing <b>${esc(g.name)}</b>. Which field?`,
+      kb: [...Array(Math.ceil(FIELDS.length / 2)).keys()].map(r => FIELDS.slice(r * 2, r * 2 + 2).map(f => B(f.label, 'aField', `${g.id}|${f.key}`))) });
+    render();
+  },
+  aField: a => {
+    const [gid, key] = a.split('|'); const g = game(gid); const f = FIELDS.find(x => x.key === key);
+    if (!g) return flash('This game was removed.');
+    S.cmp = { mode: 'edit', gid: g.id, key, photo: key === 'photo', qid: seq + 1 };
+    push({ kind: 'text', html: key === 'photo' ? `Send a new cover image for <b>${esc(g.name)}</b>.`
+      : `<span class="lbl">Current ${esc(f.label.toLowerCase())}:</span>\n${esc(g[key])}\n\nSend the new value.`,
+      kb: key === 'photo' ? [[B('Attach photo (demo)', 'aPhoto', undefined, 'primary')], [B('Cancel', 'aCancel')]] : [[B('Cancel', 'aCancel')]] });
+    render();
+    if (key !== 'photo') prefill(g[key]);
+  },
+  aDel: a => { const g = game(a); push({ kind: 'text', html: `Delete <b>[${g.id}] ${esc(g.name)}</b>? It disappears from the catalogue for everyone.`, kb: [[B('Delete', 'aDelYes', g.id, 'danger'), B('Cancel', 'aDelNo')]] }); render(); },
+  aDelYes: (a, m) => {
+    const g = game(a); const msg = findMsg(m);
+    if (!g) { msg.kb = []; return render(); }
+    S.games = S.games.filter(x => x.id !== g.id);
+    msg.html = `[${g.id}] ${esc(g.name)} deleted.`; msg.kb = screenMode() ? [[B('‹ Admin panel', 'rkPanel')]] : [];
+    render();
+  },
+  aDelNo: (a, m) => { const msg = findMsg(m); msg.html = 'Delete cancelled.'; msg.kb = screenMode() ? [[B('‹ Admin panel', 'rkPanel')]] : []; render(); },
+  send: () => {
+    const v = document.getElementById('composer').value.trim();
+    if (!v) return;
+    if (S.role === 'user') {
+      document.getElementById('composer').value = '';
+      if (v.startsWith('/')) return ACT.cmd(v.split(/\s/)[0].toLowerCase());
+      push({ kind: 'me', text: v }, { kind: 'text', html: 'I work with the menu buttons below and a few commands. Send /faq to see them.' });
+      return render();
+    }
+    if (!S.cmp) return;
+    // The single-line demo input loses line breaks; restore the sample's paragraphs when it was sent unchanged.
+    if (S.cmp.mode === 'add') { const st = STEPS[S.cmp.step]; stepAnswer(st.sample && v === st.sample.replace(/\s*\n+\s*/g, ' ') ? st.sample : v); }
+    else saveEdit(v, v);
+  },
+
+  // admin, Mini App version
+  openAdmin: () => { S.app = { view: 'grid' }; render(); },
+  appAdmOpen: a => { S.app = { view: 'adetail', gid: Number(a) }; render(); },
+  appAdd: () => { const f = {}; STEPS.forEach(s => { f[s.key] = s.photo ? true : s.sample; }); S.app = { view: 'add', form: f }; render(); },
+  appEdit: () => { S.app = { view: 'edit', gid: S.app.gid, form: { ...game(S.app.gid), photo: true } }; render(); },
+  appGenre: a => { S.app = { ...S.app, genre: a || '' }; render(); },
+  appShot: () => flash('Screenshot added (demo)'),
+  appPhoto: () => { S.app.form.photo = true; flash('Photo attached (demo)'); },
+  appDelAsk: () => { S.app = { ...S.app, confirm: true }; render(); },
+  appDelNo: () => { S.app = { ...S.app, confirm: false }; render(); },
+  appDelYes: () => { const g = game(S.app.gid); S.games = S.games.filter(x => x.id !== g.id); S.app = { view: 'grid' }; flash(`[${g.id}] ${g.name} deleted.`); },
+  appSave: () => {
+    const f = S.app.form;
+    if (!String(f.name || '').trim()) return flash('Title is required.');
+    const fields = { name: f.name, genre: f.genre, package: f.package, description: f.description, playLink: f.playLink, gameLink: f.gameLink };
+    if (S.app.view === 'add') {
+      const id = S.games.reduce((x, g) => Math.max(x, g.id), 100) + 1;
+      S.games.push({ id, ...fields });
+      notifyUsers(`New game: ${f.name}`, `${f.genre}. Tap to see details and play it.`, id);
+      S.app = { view: 'grid' };
+      flash(`Published. Notification sent to ${S.subscribers} subscribers.`);
+    } else {
+      const old = game(S.app.gid); const changed = old.description !== f.description;
+      Object.assign(old, fields);
+      if (changed) notifyUsers(`Updated: ${old.name}`, 'The description has changed. Tap to read it.', old.id);
+      S.app = { view: 'adetail', gid: old.id };
+      flash(changed ? `Saved. ${S.subscribers} subscribers notified about the new description.` : 'Saved. Only description changes are announced.');
+    }
+  }
+};
+
+function saveEdit(value, shown) {
+  const { gid, key } = S.cmp; const g = game(gid);
+  closeQuestion();
+  push({ kind: 'me', text: shown });
+  S.cmp = null;
+  if (!g) { push({ kind: 'text', html: 'This game was removed.' }); return render(); }
+  if (key !== 'photo') g[key] = value;
+  const isDesc = key === 'description';
+  push({ kind: 'text', html: isDesc ? `Description of <b>${esc(g.name)}</b> updated. Notification sent to ${S.subscribers} subscribers.`
+                                   : 'Saved. Subscribers are notified only about new games and description changes.' });
+  if (isDesc) notifyUsers(`Updated: ${g.name}`, 'The description has changed. Tap to read it.', g.id);
+  render();
+}
+
+// The preview card in the add flow is not in S.games yet.
+const _msgHtml = msgHtml;
+msgHtml = function (m) {
+  if (m.kind === 'card' && m.gid === -1) {
+    const g = m.preview;
+    return `<div class="m" data-k="${m.id}"><div class="msg flush">${cover(g, 'height:200px')}<div class="body">
+      <div class="title">${esc(g.name)}</div><div><span class="lbl">Genre:</span> ${esc(g.genre)}</div>
+      <div><span class="lbl">Package:</span> <span class="pkg">${esc(g.package)}</span></div>
+      <div class="desc">${esc(teaser(g))}</div>${m.status ? `<div class="w-status">${esc(m.status)}</div>` : ''}</div></div>${kbHtml(m.kb, m.id)}</div>`;
+  }
+  if (m.kind === 'wizard') return `<div class="m" data-k="${m.id}"><div class="msg">${wizardHtml(m)}</div>${kbHtml(m.kb, m.id)}</div>`;
+  return _msgHtml(m);
+};
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled) return;
+  const fn = ACT[el.dataset.action];
+  if (fn) fn(el.dataset.arg, el.dataset.m);
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'appSearch' && S.app) {
+    // Filter in place: re-rendering the whole app would drop the focus from the search box.
+    S.app.q = e.target.value;
+    document.getElementById('appFeedList').innerHTML = feedItems();
+    document.getElementById('app')._html = null;
+    return;
+  }
+  const k = e.target.dataset && e.target.dataset.field;
+  if (k && S.app && S.app.form) S.app.form[k] = e.target.value;
+});
+document.addEventListener('scroll', e => {
+  const t = e.target;
+  if (!t.dataset || t.dataset.gallery === undefined) return;
+  const i = Math.round(t.scrollLeft / t.clientWidth);
+  t.parentElement.querySelectorAll('.dots i').forEach((d, k) => d.classList.toggle('on', k === i));
+}, true);
+document.getElementById('composer').addEventListener('keydown', e => { if (e.key === 'Enter') ACT.send(); });
+
+render();
+</script>
+</body>
+</html>

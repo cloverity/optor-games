@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optor Games bot — версії та ціни</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Cloverity brand kit (cloverity-site global.css): ink #0B1220, graphite #3A4252, muted #6B7280,
+   blue #1983F8 (accents only — 3.7:1 on white), blue-ink #0F5FC0 for text (6.1:1), lime #83F819 — accent only, dark text on it */
+:root{
+  --navy:#0B1220; --blue:#1983F8; --ink-blue:#0F5FC0; --lime:#83F819;
+  --ink:#0B1220; --muted:#3A4252; --line:#E3E8EE; --bg:#F5F7FA; --card:#FFFFFF; --soft:#EAF3FE;
+  --price:#6B7280;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Manrope',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+.slide{max-width:1280px;margin:0 auto;padding:20px 32px 16px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:20px}
+.eyebrow{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-blue);margin-bottom:8px}
+h1{font-size:30px;line-height:1.1;margin:0;color:var(--navy);font-weight:800;letter-spacing:-.01em}
+.sub{font-size:16px;color:var(--muted);margin-top:6px}
+.brand{font-weight:700;font-size:18px;color:var(--navy);display:flex;align-items:center;gap:8px}
+.top-right{display:flex;align-items:center;gap:20px}
+.demo-link{font-size:14px;font-weight:600;color:var(--ink-blue);text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:8px 14px;background:var(--card)}
+.demo-link:hover{border-color:var(--ink-blue)}
+.brand i{width:12px;height:12px;border-radius:3px;background:var(--blue);display:inline-block}
+
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 22px 14px;display:flex;flex-direction:column;position:relative}
+.plan.rec{border:2px solid var(--lime);box-shadow:0 14px 32px rgba(11,18,32,.12);transform:translateY(-6px)}
+.badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--lime);color:var(--ink);font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;white-space:nowrap}
+.name{font-size:22px;font-weight:700;color:var(--navy)}
+.tag{font-size:14px;color:var(--muted);margin-top:2px;min-height:36px}
+.price{font-size:32px;font-weight:700;color:var(--ink);margin:6px 0 2px;letter-spacing:-.02em;display:flex;align-items:baseline;gap:10px}
+.price s{font-size:22px;font-weight:600;color:var(--price);text-decoration-thickness:2px}
+.paid{font-size:12px;color:var(--price);margin-bottom:10px}
+.price small{font-size:15px;font-weight:500;color:var(--muted);letter-spacing:0}
+ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+li{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:4px 0;min-height:36px;border-bottom:1px solid var(--line);font-size:14px;line-height:1.3}
+li .f{color:var(--ink)}
+li .v{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+li.off .f{color:#9AA4B2}
+.ic{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ic.yes{background:var(--soft);color:var(--ink-blue)}
+.ic.no{background:#F0F2F5;color:#9AA4B2}
+.plan.rec .ic.yes{background:var(--ink-blue);color:#FFFFFF}
+
+.addons{margin-top:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.addon{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.addon.light{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.addon b{font-size:17px}
+.addon span{font-size:13px;color:var(--muted);display:block;margin-top:3px}
+.addon .p{font-size:24px;font-weight:700;white-space:nowrap;color:var(--ink)}
+.addon.light .p{color:var(--price)}
+.foot{margin-top:8px;font-size:13px;color:var(--muted)}
+@media (max-width:900px){
+  .grid,.addons{grid-template-columns:1fr}
+  .plan.rec{transform:none}
+  h1{font-size:30px}
+  .slide{padding:32px 16px}
+}
+</style>
+</head>
+<body>
+<div class="slide">
+  <div class="top">
+    <div>
+      <div class="eyebrow">Optor Games · Telegram bot</div>
+      <h1>Оберіть версію бота</h1>
+      <div class="sub">Каталог ігор студії з адмінкою — фіксована ціна за кожну версію.</div>
+    </div>
+    <div class="top-right"><a class="demo-link" href="./">← Демо бота</a><div class="brand"><i></i>Cloverity</div></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="addons">
+    <div class="addon">
+      <div><b>Нотифікації підписникам</b><span>Повідомлення про нову гру або зміну опису, вимкнення в один дотик. До будь-якої версії.</span></div>
+      <div class="p">+$50</div>
+    </div>
+    <div class="addon light">
+      <div><b>Сервер (VPS)</b><span>Хостинг бота, оплачується напряму провайдеру.</span></div>
+      <div class="p">≈ $5/міс</div>
+    </div>
+  </div>
+  <div class="foot">Ціни фіксовані за описаний обсяг. Мова бота — англійська. Адміни: до 3 акаунтів Telegram.</div>
+</div>
+
+<script>
+const YES = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+const NO = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12h14"/></svg>';
+
+// One row per feature, same order in every plan so the columns compare line by line.
+const FEATURES = [
+  ['Список ігор', ['Список кнопок', 'Стрічка з великими фото', 'Вебкаталог на весь екран']],
+  ['Картка гри: фото, опис, Play, Game page', ['Так', 'Плюс гортання Prev / Next і Read more', 'На весь екран, кнопки закріплені внизу']],
+  ['Меню, FAQ, Contact us', [true, true, true]],
+  ['Адмінка: додати, редагувати, видалити гру', ['У чаті бота', 'У чаті бота', 'Вебформи']],
+  ['Майстер додавання гри з чеклістом', [true, true, 'Форма з усіма полями']],
+  ['Список ігор з фото в адмінці', [false, true, 'Сітка обкладинок']],
+  ['Режим «як бачить користувач» для адміна', [false, true, true]],
+  ['Чистий чат: одне вікно, що оновлюється', [false, true, true]],
+  ['Каталог як застосунок усередині Telegram', [false, false, true]],
+  ['Галерея скриншотів гри', [false, false, 'Кілька фото, гортаються свайпом']],
+  ['Пошук і фільтр за жанром', [false, false, true]]
+];
+// $100 prepayment already received — shown as the full price struck through and the remaining amount.
+const PREPAID = 100;
+const PLANS = [
+  { name: 'Simple', tag: 'Усе потрібне для каталогу ігор і керування ним.', price: 350 },
+  { name: 'Bot', tag: 'Виглядає як продукт: фото, гортання, чистий чат.', price: 450, rec: true },
+  { name: 'Mini App', tag: 'Вебкаталог і адмінка всередині Telegram.', price: 700 }
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+document.getElementById('grid').innerHTML = PLANS.map((p, i) => `
+  <section class="plan${p.rec ? ' rec' : ''}" aria-label="${esc(p.name)}">
+    ${p.rec ? '<div class="badge">Рекомендуємо</div>' : ''}
+    <div class="name">${esc(p.name)}</div>
+    <div class="tag">${esc(p.tag)}</div>
+    <div class="price"><s>$${p.price}</s><span>$${p.price - PREPAID}</span></div>
+    <div class="paid">фіксована ціна · з урахуванням передоплати $${PREPAID}</div>
+    <ul>${FEATURES.map(([f, vals]) => {
+      const v = vals[i];
+      const on = v !== false;
+      const note = typeof v === 'string' && v !== 'Так' ? `<span class="v">${esc(v)}</span>` : '';
+      return `<li class="${on ? '' : 'off'}"><span class="ic ${on ? 'yes' : 'no'}">${on ? YES : NO}</span><span><span class="f">${esc(f)}</span>${note}</span></li>`;
+    }).join('')}</ul>
+  </section>`).join('');
+</script>
+</body>
+</html>
